@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Flysystem\Sftp;
+namespace Sdwru\Flysystem\Sftp;
 
 class ConnectionErrorException extends \LogicException implements SftpAdapterException
 {
