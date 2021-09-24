@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Flysystem\Sftp;
+namespace Sdwru\Flysystem\Sftp;
 
 use InvalidArgumentException;
 use League\Flysystem\Adapter\AbstractFtpAdapter;
