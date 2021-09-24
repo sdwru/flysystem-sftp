@@ -8,9 +8,11 @@ use League\Flysystem\Adapter\Polyfill\StreamedCopyTrait;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
-use phpseclib\Crypt\RSA;
-use phpseclib\Net\SFTP;
-use phpseclib\System\SSH\Agent;
+use phpseclibs3\Crypt\RSA;
+use phpseclibs3\Net\SFTP;
+use phpseclibs3\System\SSH\Agent;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Exception\NoKeyLoadedException;
 
 class SftpAdapter extends AbstractFtpAdapter
 {
@@ -291,7 +293,7 @@ class SftpAdapter extends AbstractFtpAdapter
     /**
      * Get the private key with the password or private key contents.
      *
-     * @return RSA
+     *
      */
     public function getPrivateKey()
     {
@@ -299,15 +301,18 @@ class SftpAdapter extends AbstractFtpAdapter
             $this->privateKey = file_get_contents($this->privateKey);
         }
 
-        $key = new RSA();
+        try {
+            if ($this->passphrase !== null) {
+                return PublicKeyLoader::load($this->privateKey, $this->passphrase);
+            }
 
-        if ($password = $this->getPassphrase()) {
-            $key->setPassword($password);
+            return PublicKeyLoader::load($this->privateKey);
+        } catch (NoKeyLoadedException $exception) {
+            throw new UnableToLoadPrivateKey();
         }
 
-        $key->loadKey($this->privateKey);
-
-        return $key;
+        throw new RuntimeException();
+        
     }
 
     /**
